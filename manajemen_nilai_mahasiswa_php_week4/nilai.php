@@ -1,8 +1,4 @@
 <?php
-
-// =============================================
-// DATA MAHASISWA (Array Asosiatif)
-// =============================================
 $mahasiswa = [
     [
         "nama"         => "Axandio",
@@ -112,7 +108,6 @@ $rata_rata        = round($total_nilai / $jumlah_mahasiswa, 2);
             margin: 0 auto;
         }
 
-        /* HEADER */
         .header {
             background: linear-gradient(135deg, #1e3a5f, #2e86de);
             color: white;
@@ -133,7 +128,6 @@ $rata_rata        = round($total_nilai / $jumlah_mahasiswa, 2);
             opacity: 0.85;
         }
 
-        /* TABEL */
         .table-wrapper {
             background: white;
             border-radius: 12px;
@@ -183,7 +177,6 @@ $rata_rata        = round($total_nilai / $jumlah_mahasiswa, 2);
             font-weight: 500;
         }
 
-        /* BADGE GRADE */
         .grade {
             display: inline-block;
             width: 34px;
@@ -221,7 +214,6 @@ $rata_rata        = round($total_nilai / $jumlah_mahasiswa, 2);
             color: #721c24;
         }
 
-        /* STATISTIK */
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -260,7 +252,6 @@ $rata_rata        = round($total_nilai / $jumlah_mahasiswa, 2);
             margin-top: 4px;
         }
 
-        /* KETERANGAN */
         .info-box {
             background: white;
             border-radius: 12px;
@@ -324,7 +315,6 @@ $rata_rata        = round($total_nilai / $jumlah_mahasiswa, 2);
                 <?php
                 $no = 1;
                 foreach ($mahasiswa as $mhs) :
-                    // Gunakan function untuk hitung nilai akhir
                     $na     = hitungNilaiAkhir($mhs["nilai_tugas"], $mhs["nilai_uts"], $mhs["nilai_uas"]);
                     $grade  = tentukanGrade($na);
                     $status = tentukanStatus($na);
@@ -367,7 +357,6 @@ $rata_rata        = round($total_nilai / $jumlah_mahasiswa, 2);
         </div>
     </div>
 
-    <!-- KETERANGAN BOBOT & GRADE -->
     <div class="info-box">
         <h3>📌 Keterangan</h3>
         <ul>
