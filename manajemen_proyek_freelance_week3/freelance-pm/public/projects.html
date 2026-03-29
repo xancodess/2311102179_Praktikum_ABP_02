@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tabel Proyek — FreelancePM</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+  <link href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <style>
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .filter-chip {
+      padding: 5px 14px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-chip.active,
+    .filter-chip:hover {
+      border-color: var(--purple);
+      color: var(--purple);
+      background: rgba(132,94,167,0.08);
+    }
+
+    .filter-chip.active {
+      background: var(--purple);
+      color: #fff;
+    }
+
+    .client-name {
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--navy);
+    }
+
+    .project-id {
+      font-size: 0.7rem;
+      color: var(--text-light);
+      font-family: monospace;
+    }
+
+    .action-btns {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    /* Export buttons override */
+    .dt-buttons .dt-button {
+      background: transparent !important;
+      border: 1.5px solid var(--border) !important;
+      color: var(--text-main) !important;
+      border-radius: 8px !important;
+      font-size: 0.8rem !important;
+      font-weight: 600 !important;
+      padding: 6px 14px !important;
+      transition: all 0.2s !important;
+    }
+
+    .dt-buttons .dt-button:hover {
+      border-color: var(--purple) !important;
+      color: var(--purple) !important;
+      background: rgba(132,94,167,0.08) !important;
+    }
+
+    /* gcal sync indicator */
+    .gcal-sync {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 50px;
+      background: rgba(22,163,74,0.1);
+      color: #16a34a;
+    }
+
+    .gcal-no {
+      font-size: 0.68rem;
+      color: var(--text-light);
+    }
+
+    /* delete confirm */
+    .delete-confirm-area {
+      display: none;
+      gap: 6px;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+
+<div id="navbar-root"></div>
+
+<div class="container-fluid px-4" style="max-width:1400px;">
+
+  <!-- Page Header -->
+  <div class="page-header fade-in-up">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+      <div>
+        <h1 class="page-title">Data Proyek</h1>
+        <p class="page-subtitle">Kelola seluruh proyek video freelance Anda</p>
+      </div>
+      <a href="/form" class="btn-pm-primary">
+        <i class="bi bi-plus-circle"></i> Tambah Proyek
+      </a>
+    </div>
+  </div>
+
+  <!-- Filter Chips -->
+  <div class="filter-bar fade-in-up stagger-1">
+    <span style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Filter:</span>
+    <button class="filter-chip active" data-filter="all">Semua</button>
+    <button class="filter-chip" data-filter="Active">Aktif</button>
+    <button class="filter-chip" data-filter="Completed">Selesai</button>
+    <button class="filter-chip" data-filter="Unpaid">Belum Bayar</button>
+    <button class="filter-chip" data-filter="Partial">Sebagian Bayar</button>
+    <div class="ms-auto">
+      <span id="filter-info" class="badge-pm badge-review" style="font-size:0.78rem;"></span>
+    </div>
+  </div>
+
+  <!-- Main Table Card -->
+  <div class="pm-card fade-in-up stagger-2 mb-5">
+    <div class="pm-card-header">
+      <h5><i class="bi bi-table" style="color:var(--purple)"></i> Daftar Proyek</h5>
+      <div class="d-flex gap-2 align-items-center">
+        <span id="gcal-status-badge"></span>
+      </div>
+    </div>
+    <div class="pm-card-body p-0">
+      <div class="table-responsive p-3">
+        <table id="projects-table" class="table table-hover" style="width:100%">
+          <thead>
+            <tr>
+              <th>Klien</th>
+              <th>Jenis Konten</th>
+              <th>Tenggat</th>
+              <th>Harga</th>
+              <th>Status</th>
+              <th>Revisi</th>
+              <th>Pembayaran</th>
+              <th>G.Cal</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── EDIT MODAL ──────────────────────────────────────────── -->
+<div class="modal fade" id="editModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Edit Proyek</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <input type="hidden" id="edit-id">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Nama Klien *</label>
+            <input type="text" id="edit-clientName" class="form-control-pm" placeholder="Nama klien">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Jenis Konten *</label>
+            <select id="edit-contentType" class="form-select-pm">
+              <option>YouTube Long-form</option>
+              <option>Short-form Reel</option>
+              <option>Corporate Training</option>
+              <option>Music Video</option>
+              <option>Product Demo</option>
+              <option>Documentary</option>
+              <option>Wedding Video</option>
+              <option>Lainnya</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Tenggat Waktu *</label>
+            <input type="date" id="edit-deadline" class="form-control-pm">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Harga</label>
+            <input type="number" id="edit-price" class="form-control-pm" placeholder="850">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Mata Uang</label>
+            <select id="edit-currency" class="form-select-pm">
+              <option value="USD">USD ($)</option>
+              <option value="EUR">EUR (€)</option>
+              <option value="GBP">GBP (£)</option>
+              <option value="IDR">IDR (Rp)</option>
+              <option value="JPY">JPY (¥)</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Status Proyek</label>
+            <select id="edit-projectStatus" class="form-select-pm">
+              <option>Active</option>
+              <option>Completed</option>
+              <option>On Hold</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Status Revisi</label>
+            <select id="edit-revisionStatus" class="form-select-pm">
+              <option>Draft</option>
+              <option>In Review</option>
+              <option>Final Cut</option>
+              <option>Approved</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Status Pembayaran</label>
+            <select id="edit-paymentStatus" class="form-select-pm">
+              <option>Unpaid</option>
+              <option>Partial</option>
+              <option>Paid</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Catatan</label>
+            <textarea id="edit-notes" class="form-control-pm" rows="2" placeholder="Catatan proyek..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-0 px-4 pb-4">
+        <button type="button" class="btn-pm-secondary" data-bs-dismiss="modal">Batal</button>
+        <button type="button" class="btn-pm-primary" id="save-edit-btn">
+          <i class="bi bi-check-circle"></i> Simpan Perubahan
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── DELETE CONFIRM MODAL ─────────────────────────────────── -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
+    <div class="modal-content">
+      <div class="modal-header" style="background:var(--red);">
+        <h5 class="modal-title" style="font-family:Montserrat; font-weight:700; font-size:1rem;">
+          <i class="bi bi-trash3-fill me-2"></i> Hapus Proyek
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center py-4">
+        <div style="font-size:2.5rem; margin-bottom:1rem;">🗑️</div>
+        <p style="font-weight:600; font-size:0.95rem; margin-bottom:6px;">Hapus proyek ini?</p>
+        <p style="font-size:0.85rem; color:var(--text-muted);" id="delete-confirm-name"></p>
+        <p style="font-size:0.8rem; color:var(--red); font-weight:600;">Tindakan ini tidak dapat dibatalkan.</p>
+      </div>
+      <div class="modal-footer border-0 justify-content-center gap-3 pb-4">
+        <button type="button" class="btn-pm-secondary" data-bs-dismiss="modal">Batal</button>
+        <button type="button" class="btn-pm-danger" id="confirm-delete-btn" style="padding:10px 24px;">
+          <i class="bi bi-trash3"></i> Hapus Sekarang
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+<script src="js/app.js"></script>
+<script>
+let projectsTable;
+let allProjects = [];
+let activeFilter = 'all';
+let deleteTargetId = null;
+
+$(document).ready(function() {
+  $('#navbar-root').html(renderNavbar('/projects'));
+  checkAuthStatus().then(auth => {
+    if (auth.authenticated) {
+      $('#gcal-status-badge').html('<span class="gcal-sync"><i class="bi bi-calendar-check-fill"></i> Google Calendar Terhubung</span>');
+    }
+  });
+
+  initProjectsTable();
+});
+
+// ── DataTable Setup ────────────────────────────────────────
+function initProjectsTable() {
+  projectsTable = $('#projects-table').DataTable({
+    ajax: {
+      url: '/api/projects',
+      dataSrc: 'data'
+    },
+    columns: [
+      {
+        data: null,
+        render: function(data) {
+          return `<div class="client-name">${data.clientName}</div>
+                  <div class="project-id">${data.id}</div>`;
+        }
+      },
+      { data: 'contentType' },
+      {
+        data: 'deadline',
+        render: function(data) { return formatDeadline(data); }
+      },
+      {
+        data: null,
+        render: function(data) {
+          return `<strong>${formatPrice(data.price, data.currency)}</strong>`;
+        }
+      },
+      {
+        data: 'projectStatus',
+        render: function(data) { return statusBadge(data); }
+      },
+      {
+        data: 'revisionStatus',
+        render: function(data) { return revisionBadge(data); }
+      },
+      {
+        data: 'paymentStatus',
+        render: function(data) { return paymentBadge(data); }
+      },
+      {
+        data: 'googleEventId',
+        render: function(data) {
+          return data
+            ? `<span class="gcal-sync"><i class="bi bi-calendar-check"></i> Sync</span>`
+            : `<span class="gcal-no">—</span>`;
+        }
+      },
+      {
+        data: null,
+        orderable: false,
+        render: function(data) {
+          return `
+            <div class="action-btns">
+              <button class="btn-pm-edit" onclick="openEditModal('${data.id}')">
+                <i class="bi bi-pencil"></i> Edit
+              </button>
+              <button class="btn-pm-danger" onclick="openDeleteModal('${data.id}', '${data.clientName}')">
+                <i class="bi bi-trash3"></i>
+              </button>
+            </div>
+          `;
+        }
+      }
+    ],
+    dom: "<'row mb-3'<'col-sm-6'B><'col-sm-6'f>>" +
+         "<'row'<'col-sm-12'tr>>" +
+         "<'row mt-3'<'col-sm-5'i><'col-sm-7'p>>",
+    buttons: [
+      { extend: 'excelHtml5', text: '<i class="bi bi-file-earmark-excel me-1"></i> Excel', className: 'btn-export' },
+      { extend: 'print', text: '<i class="bi bi-printer me-1"></i> Cetak', className: 'btn-export' }
+    ],
+    language: {
+      search:          'Cari:',
+      lengthMenu:      'Tampilkan _MENU_ data',
+      info:            'Menampilkan _START_–_END_ dari _TOTAL_ proyek',
+      infoEmpty:       'Tidak ada data',
+      zeroRecords:     'Tidak ada proyek yang cocok',
+      paginate: { first:'Pertama', last:'Terakhir', next:'›', previous:'‹' },
+      loadingRecords:  'Memuat...',
+      processing:      'Memproses...',
+      emptyTable:      'Belum ada proyek'
+    },
+    order: [[2, 'asc']],
+    pageLength: 10,
+    initComplete: function() {
+      updateFilterInfo();
+    }
+  });
+
+  // Reload data cache on draw
+  projectsTable.on('draw', function() {
+    allProjects = projectsTable.data().toArray();
+    updateFilterInfo();
+  });
+}
+
+// ── Filter Chips ───────────────────────────────────────────
+$('.filter-chip').on('click', function() {
+  $('.filter-chip').removeClass('active');
+  $(this).addClass('active');
+
+  const filter = $(this).data('filter');
+  activeFilter = filter;
+
+  if (filter === 'all') {
+    projectsTable.column(4).search('').column(6).search('').draw();
+  } else if (['Active','Completed','On Hold'].includes(filter)) {
+    projectsTable.column(4).search(filter).column(6).search('').draw();
+  } else {
+    projectsTable.column(6).search(filter).column(4).search('').draw();
+  }
+});
+
+function updateFilterInfo() {
+  const count = projectsTable.rows({ search:'applied' }).count();
+  $('#filter-info').text(count + ' proyek ditampilkan');
+}
+
+// ── Edit Modal ─────────────────────────────────────────────
+function openEditModal(id) {
+  $.getJSON('/api/projects/' + id, function(p) {
+    $('#edit-id').val(p.id);
+    $('#edit-clientName').val(p.clientName);
+    $('#edit-contentType').val(p.contentType);
+    $('#edit-deadline').val(p.deadline);
+    $('#edit-price').val(p.price);
+    $('#edit-currency').val(p.currency);
+    $('#edit-projectStatus').val(p.projectStatus);
+    $('#edit-revisionStatus').val(p.revisionStatus);
+    $('#edit-paymentStatus').val(p.paymentStatus);
+    $('#edit-notes').val(p.notes);
+
+    new bootstrap.Modal('#editModal').show();
+  }).fail(function() {
+    showToast('Gagal memuat data proyek', 'error');
+  });
+}
+
+$('#save-edit-btn').on('click', function() {
+  const id = $('#edit-id').val();
+  const $btn = $(this);
+  $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span> Menyimpan...');
+
+  $.ajax({
+    url: '/api/projects/' + id,
+    method: 'PUT',
+    contentType: 'application/json',
+    data: JSON.stringify({
+      clientName:     $('#edit-clientName').val().trim(),
+      contentType:    $('#edit-contentType').val(),
+      deadline:       $('#edit-deadline').val(),
+      price:          $('#edit-price').val(),
+      currency:       $('#edit-currency').val(),
+      projectStatus:  $('#edit-projectStatus').val(),
+      revisionStatus: $('#edit-revisionStatus').val(),
+      paymentStatus:  $('#edit-paymentStatus').val(),
+      notes:          $('#edit-notes').val().trim()
+    }),
+    success: function(res) {
+      bootstrap.Modal.getInstance('#editModal').hide();
+      projectsTable.ajax.reload(null, false);
+      showToast('Proyek berhasil diperbarui!', 'success');
+      if (res.project.googleEventId) {
+        showToast('Google Calendar diperbarui', 'info', 2500);
+      }
+    },
+    error: function() {
+      showToast('Gagal menyimpan perubahan', 'error');
+    },
+    complete: function() {
+      $btn.prop('disabled', false).html('<i class="bi bi-check-circle"></i> Simpan Perubahan');
+    }
+  });
+});
+
+// ── Delete Modal ───────────────────────────────────────────
+function openDeleteModal(id, clientName) {
+  deleteTargetId = id;
+  $('#delete-confirm-name').text('"' + clientName + '" akan dihapus permanen beserta event Google Calendar-nya (jika ada).');
+  new bootstrap.Modal('#deleteModal').show();
+}
+
+$('#confirm-delete-btn').on('click', function() {
+  if (!deleteTargetId) return;
+
+  const $btn = $(this);
+  $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>');
+
+  $.ajax({
+    url: '/api/projects/' + deleteTargetId,
+    method: 'DELETE',
+    success: function() {
+      bootstrap.Modal.getInstance('#deleteModal').hide();
+      projectsTable.ajax.reload(null, false);
+      showToast('Proyek berhasil dihapus', 'success');
+      deleteTargetId = null;
+    },
+    error: function() {
+      showToast('Gagal menghapus proyek', 'error');
+    },
+    complete: function() {
+      $btn.prop('disabled', false).html('<i class="bi bi-trash3"></i> Hapus Sekarang');
+    }
+  });
+});
+</script>
+</body>
+</html>

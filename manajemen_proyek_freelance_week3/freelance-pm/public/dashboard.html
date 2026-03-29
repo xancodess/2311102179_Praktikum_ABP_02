@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dasbor — FreelancePM</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <style>
+    /* ── Progress Bars ── */
+    .progress-custom {
+      height: 6px;
+      border-radius: 3px;
+      background: var(--border);
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: var(--purple);
+      transition: width 1s cubic-bezier(0.4,0,0.2,1);
+    }
+    .progress-fill.green  { background: #16a34a; }
+    .progress-fill.amber  { background: #d97706; }
+    .progress-fill.navy   { background: var(--navy); }
+
+    /* ── Activity Feed ── */
+    .activity-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.2s;
+    }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-icon {
+      width: 34px; height: 34px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+    .activity-icon.purple { background: rgba(132,94,167,0.12); color: var(--purple); }
+    .activity-icon.green  { background: rgba(22,163,74,0.12); color: #16a34a; }
+    .activity-icon.amber  { background: rgba(217,119,6,0.12); color: #d97706; }
+    .activity-icon.red    { background: rgba(230,57,70,0.12); color: var(--red); }
+
+    .activity-content { flex: 1; }
+    .activity-title { font-size: 0.85rem; font-weight: 600; color: var(--text-main); }
+    .activity-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+
+    /* ── Deadline List ── */
+    .deadline-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .deadline-item:last-child { border-bottom: none; }
+    .deadline-days {
+      min-width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+    .deadline-days.urgent { background: rgba(230,57,70,0.12); color: var(--red); }
+    .deadline-days.soon   { background: rgba(217,119,6,0.12); color: #d97706; }
+    .deadline-days.ok     { background: rgba(22,163,74,0.12); color: #16a34a; }
+    .deadline-days small { font-size: 0.55rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* ── Chart ── */
+    .mini-chart-bar {
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      height: 80px;
+    }
+    .bar-col {
+      flex: 1;
+      border-radius: 4px 4px 0 0;
+      background: var(--purple);
+      opacity: 0.7;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+    .bar-col:hover { opacity: 1; transform: scaleY(1.03); }
+    .bar-col.active-col { opacity: 1; background: var(--navy); }
+
+    .chart-labels {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .chart-labels span {
+      flex: 1;
+      text-align: center;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    /* ── Content Type Breakdown ── */
+    .type-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+    }
+    .type-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .type-name { font-size: 0.85rem; font-weight: 500; flex: 1; }
+    .type-count {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+    .type-bar-wrap {
+      width: 80px;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .type-bar { height: 100%; border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+<!-- Navbar (injected by JS) -->
+<div id="navbar-root"></div>
+
+<!-- Main Content -->
+<div class="container-fluid px-4" style="max-width:1280px;">
+
+  <!-- Page Header -->
+  <div class="page-header fade-in-up">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+      <div>
+        <h1 class="page-title">Dasbor Ringkasan</h1>
+        <p class="page-subtitle" id="greeting-text">Selamat datang kembali</p>
+      </div>
+      <div class="d-flex gap-2 flex-wrap">
+        <a href="/form" class="btn-pm-primary">
+          <i class="bi bi-plus-circle"></i> Proyek Baru
+        </a>
+        <a href="/projects" class="btn-pm-secondary">
+          <i class="bi bi-table"></i> Lihat Semua
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Metric Cards ─────────────────────────────────────── -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="metric-card navy fade-in-up stagger-1">
+        <div class="metric-icon"><i class="bi bi-folder2-open" style="color:var(--navy)"></i></div>
+        <div class="metric-label">Total Proyek</div>
+        <div class="metric-value" id="m-total">—</div>
+        <div class="metric-sub">Semua waktu</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="metric-card fade-in-up stagger-2">
+        <div class="metric-icon"><i class="bi bi-play-circle" style="color:var(--purple)"></i></div>
+        <div class="metric-label">Proyek Aktif</div>
+        <div class="metric-value" id="m-active">—</div>
+        <div class="metric-sub">Sedang berjalan</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="metric-card green fade-in-up stagger-3">
+        <div class="metric-icon"><i class="bi bi-check-circle" style="color:#16a34a"></i></div>
+        <div class="metric-label">Selesai</div>
+        <div class="metric-value" id="m-done">—</div>
+        <div class="metric-sub">Proyek selesai</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="metric-card amber fade-in-up stagger-4">
+        <div class="metric-icon"><i class="bi bi-currency-dollar" style="color:#d97706"></i></div>
+        <div class="metric-label">Total Pendapatan</div>
+        <div class="metric-value" id="m-revenue">—</div>
+        <div class="metric-sub" id="m-revenue-sub">Proyek terbayar</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Row 2: Charts + Deadline ───────────────────────────── -->
+  <div class="row g-3 mb-4">
+
+    <!-- Revenue by Month (mini bar chart) -->
+    <div class="col-md-4">
+      <div class="pm-card h-100 reveal">
+        <div class="pm-card-header">
+          <h5><i class="bi bi-bar-chart-fill" style="color:var(--purple)"></i> Pendapatan Bulanan</h5>
+        </div>
+        <div class="pm-card-body">
+          <div id="monthly-chart"></div>
+          <div class="chart-labels" id="chart-labels"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Status Donut (via CSS) -->
+    <div class="col-md-4">
+      <div class="pm-card h-100 reveal">
+        <div class="pm-card-header">
+          <h5><i class="bi bi-pie-chart-fill" style="color:var(--purple)"></i> Status Pembayaran</h5>
+        </div>
+        <div class="pm-card-body">
+          <div class="d-flex flex-column gap-3" id="payment-breakdown">
+            <div class="pm-spinner"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upcoming Deadlines -->
+    <div class="col-md-4">
+      <div class="pm-card h-100 reveal">
+        <div class="pm-card-header">
+          <h5><i class="bi bi-alarm-fill" style="color:var(--red)"></i> Tenggat Mendatang</h5>
+          <span id="deadline-count" class="badge-pm badge-review">—</span>
+        </div>
+        <div class="pm-card-body p-0" style="padding:0!important">
+          <div id="deadline-list" style="padding:1rem 1.5rem;">
+            <div class="pm-spinner"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Row 3: Content Types + Recent Projects ──────────────── -->
+  <div class="row g-3 mb-4">
+
+    <!-- Content Type Breakdown -->
+    <div class="col-md-4">
+      <div class="pm-card reveal">
+        <div class="pm-card-header">
+          <h5><i class="bi bi-camera-video-fill" style="color:var(--purple)"></i> Jenis Konten</h5>
+        </div>
+        <div class="pm-card-body" id="content-types">
+          <div class="pm-spinner"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Projects -->
+    <div class="col-md-8">
+      <div class="pm-card reveal">
+        <div class="pm-card-header">
+          <h5><i class="bi bi-clock-history" style="color:var(--navy)"></i> Proyek Terbaru</h5>
+          <a href="/projects" class="btn-pm-secondary" style="padding:5px 12px; font-size:0.8rem;">Lihat Semua</a>
+        </div>
+        <div class="pm-card-body p-0">
+          <div class="table-responsive">
+            <table class="table mb-0" id="recent-table">
+              <thead>
+                <tr>
+                  <th style="padding:12px 16px; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); font-weight:700; border-bottom:2px solid var(--border);">Klien</th>
+                  <th style="padding:12px 16px; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); font-weight:700; border-bottom:2px solid var(--border);">Jenis</th>
+                  <th style="padding:12px 16px; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); font-weight:700; border-bottom:2px solid var(--border);">Harga</th>
+                  <th style="padding:12px 16px; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); font-weight:700; border-bottom:2px solid var(--border);">Status</th>
+                  <th style="padding:12px 16px; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); font-weight:700; border-bottom:2px solid var(--border);">Bayar</th>
+                </tr>
+              </thead>
+              <tbody id="recent-tbody">
+                <tr><td colspan="5" class="text-center py-4"><div class="pm-spinner"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/app.js"></script>
+<script>
+$(document).ready(function() {
+  // Inject navbar
+  $('#navbar-root').html(renderNavbar('/dashboard'));
+  checkAuthStatus();
+  initScrollReveal();
+
+  // Greeting
+  const hour = new Date().getHours();
+  const greet = hour < 12 ? 'Selamat pagi' : hour < 17 ? 'Selamat siang' : 'Selamat malam';
+  $('#greeting-text').text(greet + ' — ' + new Date().toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' }));
+
+  // Load all data
+  $.getJSON('/api/projects', function(res) {
+    const projects = res.data || [];
+    renderMetrics(projects);
+    renderDeadlines(projects);
+    renderPaymentBreakdown(projects);
+    renderContentTypes(projects);
+    renderRecentProjects(projects);
+    renderMonthlyChart(projects);
+  }).fail(function() {
+    showToast('Gagal memuat data', 'error');
+  });
+});
+
+function renderMetrics(projects) {
+  const active    = projects.filter(p => p.projectStatus === 'Active').length;
+  const completed = projects.filter(p => p.projectStatus === 'Completed').length;
+  const revenue   = projects.filter(p => p.paymentStatus === 'Paid').reduce((s,p) => s + p.price, 0);
+  const pending   = projects.filter(p => p.paymentStatus !== 'Paid').reduce((s,p) => s + p.price, 0);
+
+  // Animated counters
+  animateNumber('#m-total', projects.length);
+  animateNumber('#m-active', active);
+  animateNumber('#m-done', completed);
+  $('#m-revenue').text('$0');
+  animateDollar('#m-revenue', revenue);
+  $('#m-revenue-sub').text('$' + pending.toLocaleString() + ' masih pending');
+}
+
+function animateNumber(sel, target) {
+  let current = 0;
+  const step = Math.max(1, Math.floor(target / 30));
+  const timer = setInterval(() => {
+    current = Math.min(current + step, target);
+    $(sel).text(current);
+    if (current >= target) clearInterval(timer);
+  }, 40);
+}
+
+function animateDollar(sel, target) {
+  let current = 0;
+  const step = Math.max(1, Math.floor(target / 30));
+  const timer = setInterval(() => {
+    current = Math.min(current + step, target);
+    $(sel).text('$' + current.toLocaleString());
+    if (current >= target) clearInterval(timer);
+  }, 40);
+}
+
+function renderDeadlines(projects) {
+  const today = new Date();
+  const upcoming = projects
+    .filter(p => p.projectStatus === 'Active' && p.deadline)
+    .map(p => {
+      const d = new Date(p.deadline);
+      const diff = Math.ceil((d - today) / (1000*60*60*24));
+      return { ...p, diffDays: diff };
+    })
+    .sort((a,b) => a.diffDays - b.diffDays)
+    .slice(0, 5);
+
+  $('#deadline-count').text(upcoming.length + ' mendatang');
+
+  if (!upcoming.length) {
+    $('#deadline-list').html('<p class="text-center text-muted" style="font-size:0.85rem;padding:1rem 0;">Tidak ada tenggat mendatang</p>');
+    return;
+  }
+
+  const html = upcoming.map(p => {
+    const cls = p.diffDays < 0 ? 'urgent' : p.diffDays <= 7 ? 'soon' : 'ok';
+    const label = p.diffDays < 0 ? 'OVR' : p.diffDays + '';
+    const sublabel = p.diffDays < 0 ? 'Lewat' : p.diffDays === 0 ? 'Hari ini' : 'Hari';
+    return `
+      <div class="deadline-item">
+        <div class="deadline-days ${cls}">
+          ${label}
+          <small>${sublabel}</small>
+        </div>
+        <div style="flex:1; overflow:hidden;">
+          <div style="font-size:0.85rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.clientName}</div>
+          <div style="font-size:0.75rem; color:var(--text-muted);">${p.contentType}</div>
+        </div>
+        ${paymentBadge(p.paymentStatus)}
+      </div>
+    `;
+  }).join('');
+
+  $('#deadline-list').html(html);
+}
+
+function renderPaymentBreakdown(projects) {
+  const total   = projects.length || 1;
+  const paid    = projects.filter(p => p.paymentStatus === 'Paid').length;
+  const partial = projects.filter(p => p.paymentStatus === 'Partial').length;
+  const unpaid  = projects.filter(p => p.paymentStatus === 'Unpaid').length;
+
+  const paidRev    = projects.filter(p => p.paymentStatus === 'Paid').reduce((s,p) => s+p.price, 0);
+  const partialRev = projects.filter(p => p.paymentStatus === 'Partial').reduce((s,p) => s+p.price, 0);
+  const unpaidRev  = projects.filter(p => p.paymentStatus === 'Unpaid').reduce((s,p) => s+p.price, 0);
+
+  const items = [
+    { label: 'Terbayar',  count: paid,    pct: Math.round(paid/total*100),    color: '#16a34a', rev: paidRev },
+    { label: 'Sebagian',  count: partial, pct: Math.round(partial/total*100), color: '#d97706', rev: partialRev },
+    { label: 'Belum Bayar', count: unpaid, pct: Math.round(unpaid/total*100), color: 'var(--red)', rev: unpaidRev },
+  ];
+
+  const html = items.map(item => `
+    <div>
+      <div class="d-flex justify-content-between align-items-center mb-1">
+        <span style="font-size:0.82rem; font-weight:600;">${item.label}</span>
+        <span style="font-size:0.82rem; color:var(--text-muted);">${item.count} proyek · $${item.rev.toLocaleString()}</span>
+      </div>
+      <div class="progress-custom">
+        <div class="progress-fill" style="width:0%; background:${item.color};" data-target="${item.pct}"></div>
+      </div>
+    </div>
+  `).join('');
+
+  $('#payment-breakdown').html(html);
+
+  // Animate bars
+  setTimeout(() => {
+    $('.progress-fill').each(function() {
+      $(this).css('width', $(this).data('target') + '%');
+    });
+  }, 300);
+}
+
+function renderContentTypes(projects) {
+  const typeCount = {};
+  projects.forEach(p => { typeCount[p.contentType] = (typeCount[p.contentType] || 0) + 1; });
+  const sorted = Object.entries(typeCount).sort((a,b) => b[1]-a[1]);
+  const maxCount = sorted[0]?.[1] || 1;
+  const colors = ['#845EA7','#13364F','#16a34a','#d97706','#E63946','#06b6d4'];
+
+  const html = sorted.map(([type, count], i) => `
+    <div class="type-item">
+      <div class="type-dot" style="background:${colors[i%colors.length]};"></div>
+      <div class="type-name">${type}</div>
+      <div class="type-bar-wrap">
+        <div class="type-bar" style="width:${Math.round(count/maxCount*100)}%; background:${colors[i%colors.length]};"></div>
+      </div>
+      <div class="type-count">${count}</div>
+    </div>
+  `).join('');
+
+  $('#content-types').html(html || '<p class="text-muted" style="font-size:0.85rem;">Belum ada data</p>');
+}
+
+function renderRecentProjects(projects) {
+  const recent = [...projects].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0,5);
+
+  const html = recent.map(p => `
+    <tr>
+      <td style="padding:12px 16px; border-bottom:1px solid var(--border);">
+        <div style="font-weight:600; font-size:0.85rem;">${p.clientName}</div>
+        <div style="font-size:0.72rem; color:var(--text-muted);">${p.id}</div>
+      </td>
+      <td style="padding:12px 16px; border-bottom:1px solid var(--border); font-size:0.85rem;">${p.contentType}</td>
+      <td style="padding:12px 16px; border-bottom:1px solid var(--border); font-size:0.85rem; font-weight:600;">${formatPrice(p.price, p.currency)}</td>
+      <td style="padding:12px 16px; border-bottom:1px solid var(--border);">${statusBadge(p.projectStatus)}</td>
+      <td style="padding:12px 16px; border-bottom:1px solid var(--border);">${paymentBadge(p.paymentStatus)}</td>
+    </tr>
+  `).join('');
+
+  $('#recent-tbody').html(html || '<tr><td colspan="5" class="text-center text-muted py-3">Belum ada proyek</td></tr>');
+}
+
+function renderMonthlyChart(projects) {
+  const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  const now = new Date();
+  const last6 = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    last6.push({ month: months[d.getMonth()], year: d.getFullYear(), m: d.getMonth(), y: d.getFullYear() });
+  }
+
+  const revenues = last6.map(m => {
+    return projects
+      .filter(p => {
+        const d = new Date(p.createdAt);
+        return d.getMonth() === m.m && d.getFullYear() === m.y && p.paymentStatus === 'Paid';
+      })
+      .reduce((s,p) => s + p.price, 0);
+  });
+
+  const maxRev = Math.max(...revenues) || 1;
+
+  const bars = revenues.map((r, i) => {
+    const h = Math.max(8, Math.round((r / maxRev) * 80));
+    const isLast = i === revenues.length - 1;
+    return `<div class="bar-col ${isLast ? 'active-col' : ''}" style="height:${h}px;" title="${last6[i].month}: $${r.toLocaleString()}"></div>`;
+  }).join('');
+
+  const labels = last6.map(m => `<span>${m.month}</span>`).join('');
+
+  $('#monthly-chart').html(`<div class="mini-chart-bar">${bars}</div>`);
+  $('#chart-labels').html(labels);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tambah Proyek — FreelancePM</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- jQuery UI Datepicker -->
+  <link href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" rel="stylesheet">
+  <!-- jQuery Validation -->
+  <link href="css/style.css" rel="stylesheet">
+  <style>
+    .form-section {
+      background: #fff;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 1.75rem;
+      margin-bottom: 1.25rem;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow var(--transition);
+    }
+
+    .form-section:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .section-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-title .step-num {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: var(--purple);
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    /* jQuery UI overrides */
+    .ui-datepicker {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow-lg);
+      padding: 0.5rem;
+    }
+
+    .ui-datepicker-header {
+      background: var(--navy) !important;
+      border-radius: 8px !important;
+      border: none !important;
+      color: #fff !important;
+    }
+
+    .ui-datepicker-title { color: #fff !important; font-weight: 700; }
+    .ui-datepicker-prev, .ui-datepicker-next { color: #fff !important; top: 2px !important; }
+
+    .ui-state-default {
+      border: none !important;
+      background: transparent !important;
+      border-radius: 6px !important;
+      text-align: center;
+    }
+
+    .ui-state-hover {
+      background: rgba(132,94,167,0.12) !important;
+      color: var(--purple) !important;
+    }
+
+    .ui-state-active {
+      background: var(--purple) !important;
+      color: #fff !important;
+    }
+
+    /* Preview Panel */
+    .preview-card {
+      position: sticky;
+      top: 80px;
+      background: var(--navy);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      color: #fff;
+    }
+
+    .preview-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.45);
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+
+    .preview-value {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #fff;
+    }
+
+    .preview-divider {
+      border-color: rgba(255,255,255,0.1);
+      margin: 1rem 0;
+    }
+
+    .preview-price {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--purple-light);
+    }
+
+    .gcal-notice {
+      background: rgba(22,163,74,0.12);
+      border: 1px solid rgba(22,163,74,0.25);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 0.82rem;
+      color: #16a34a;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 1rem;
+    }
+
+    .gcal-notice.warning {
+      background: rgba(217,119,6,0.1);
+      border-color: rgba(217,119,6,0.25);
+      color: #d97706;
+    }
+
+    /* Form validation */
+    .form-control-pm.error,
+    .form-select-pm.error {
+      border-color: var(--red);
+      box-shadow: 0 0 0 3px rgba(230,57,70,0.1);
+    }
+
+    .field-error {
+      font-size: 0.75rem;
+      color: var(--red);
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    /* Progress Steps */
+    .form-steps {
+      display: flex;
+      gap: 0;
+      margin-bottom: 2rem;
+    }
+
+    .form-step {
+      flex: 1;
+      padding: 10px 14px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-bottom: 2px solid var(--border);
+      text-align: center;
+      transition: all 0.3s;
+      cursor: default;
+    }
+
+    .form-step.done {
+      color: #16a34a;
+      border-color: #16a34a;
+    }
+
+    .form-step.active {
+      color: var(--purple);
+      border-color: var(--purple);
+    }
+
+    /* Success overlay */
+    .success-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(19,54,79,0.85);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(6px);
+    }
+
+    .success-card {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 3rem 2.5rem;
+      text-align: center;
+      max-width: 420px;
+      width: 90%;
+      animation: scaleIn 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    }
+
+    @keyframes scaleIn {
+      from { opacity:0; transform:scale(0.85); }
+      to   { opacity:1; transform:scale(1); }
+    }
+
+    .success-icon {
+      font-size: 3.5rem;
+      margin-bottom: 1rem;
+      animation: bounceIn 0.6s 0.2s ease both;
+    }
+
+    @keyframes bounceIn {
+      from { opacity:0; transform:scale(0.5); }
+      to   { opacity:1; transform:scale(1); }
+    }
+  </style>
+</head>
+<body>
+
+<div id="navbar-root"></div>
+
+<div class="container-fluid px-4" style="max-width:1200px;">
+
+  <!-- Page Header -->
+  <div class="page-header fade-in-up">
+    <div class="d-flex align-items-center gap-3">
+      <a href="/projects" class="btn-pm-secondary" style="padding:8px 12px;">
+        <i class="bi bi-arrow-left"></i>
+      </a>
+      <div>
+        <h1 class="page-title">Tambah Proyek Baru</h1>
+        <p class="page-subtitle">Isi detail proyek — tenggat waktu akan otomatis disinkronkan ke Google Calendar</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-5">
+
+    <!-- ── Form Column ─────────────────────────────────────── -->
+    <div class="col-lg-8">
+
+      <!-- Form Steps Indicator -->
+      <div class="form-steps fade-in-up">
+        <div class="form-step active" id="step-1"><i class="bi bi-person"></i> Informasi Klien</div>
+        <div class="form-step" id="step-2"><i class="bi bi-camera-video"></i> Detail Proyek</div>
+        <div class="form-step" id="step-3"><i class="bi bi-currency-dollar"></i> Finansial</div>
+      </div>
+
+      <form id="project-form" novalidate>
+
+        <!-- Section 1: Client Info -->
+        <div class="form-section fade-in-up stagger-1">
+          <div class="section-title">
+            <div class="step-num">1</div>
+            Informasi Klien
+          </div>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Nama Klien <span class="text-danger">*</span></label>
+              <input type="text" id="clientName" class="form-control-pm" placeholder="Contoh: Marcus Holloway" autocomplete="off">
+              <div class="field-error" id="err-clientName"></div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Jenis Konten <span class="text-danger">*</span></label>
+              <select id="contentType" class="form-select-pm">
+                <option value="">— Pilih jenis konten —</option>
+                <option>YouTube Long-form</option>
+                <option>Short-form Reel</option>
+                <option>Corporate Training</option>
+                <option>Music Video</option>
+                <option>Product Demo</option>
+                <option>Documentary</option>
+                <option>Wedding Video</option>
+                <option>Podcast Editing</option>
+                <option>Lainnya</option>
+              </select>
+              <div class="field-error" id="err-contentType"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Project Details -->
+        <div class="form-section fade-in-up stagger-2">
+          <div class="section-title">
+            <div class="step-num">2</div>
+            Detail Proyek & Tenggat Waktu
+          </div>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Tenggat Waktu <span class="text-danger">*</span></label>
+              <div class="position-relative">
+                <input type="text" id="deadline-display" class="form-control-pm" placeholder="Pilih tanggal..." readonly style="cursor:pointer; padding-right:36px;">
+                <input type="hidden" id="deadline">
+                <i class="bi bi-calendar3" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--purple); pointer-events:none;"></i>
+              </div>
+              <div class="field-error" id="err-deadline"></div>
+              <div id="deadline-countdown" style="font-size:0.78rem; color:var(--text-muted); margin-top:5px;"></div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Status Revisi</label>
+              <select id="revisionStatus" class="form-select-pm">
+                <option value="Draft">📝 Draft</option>
+                <option value="In Review">🔍 In Review</option>
+                <option value="Final Cut">✂️ Final Cut</option>
+                <option value="Approved">✅ Approved</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Status Proyek</label>
+              <select id="projectStatus" class="form-select-pm">
+                <option value="Active">🟢 Active</option>
+                <option value="On Hold">⏸️ On Hold</option>
+                <option value="Completed">✅ Completed</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Catatan</label>
+              <textarea id="notes" class="form-control-pm" rows="2" placeholder="Informasi tambahan, jumlah revisi, dll..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: Financial -->
+        <div class="form-section fade-in-up stagger-3">
+          <div class="section-title">
+            <div class="step-num">3</div>
+            Finansial & Pembayaran
+          </div>
+          <div class="row g-3">
+            <div class="col-md-5">
+              <label class="form-label">Harga <span class="text-danger">*</span></label>
+              <input type="number" id="price" class="form-control-pm" placeholder="850" min="0" step="0.01">
+              <div class="field-error" id="err-price"></div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Mata Uang</label>
+              <select id="currency" class="form-select-pm">
+                <option value="USD">🇺🇸 USD ($)</option>
+                <option value="EUR">🇪🇺 EUR (€)</option>
+                <option value="GBP">🇬🇧 GBP (£)</option>
+                <option value="SGD">🇸🇬 SGD (S$)</option>
+                <option value="AUD">🇦🇺 AUD (A$)</option>
+                <option value="JPY">🇯🇵 JPY (¥)</option>
+                <option value="IDR">🇮🇩 IDR (Rp)</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Status Bayar</label>
+              <select id="paymentStatus" class="form-select-pm">
+                <option value="Unpaid">❌ Unpaid</option>
+                <option value="Partial">⏳ Partial</option>
+                <option value="Paid">💰 Paid</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="d-flex gap-3 justify-content-end fade-in-up stagger-4">
+          <a href="/projects" class="btn-pm-secondary">
+            <i class="bi bi-x"></i> Batal
+          </a>
+          <button type="submit" class="btn-pm-primary" id="submit-btn" style="padding: 12px 32px; font-size:0.95rem;">
+            <i class="bi bi-cloud-upload"></i> Simpan Proyek
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- ── Preview Sidebar ─────────────────────────────────── -->
+    <div class="col-lg-4 fade-in-up stagger-2">
+      <div class="preview-card">
+        <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:0.12em; color:rgba(255,255,255,0.4); font-weight:700; margin-bottom:1rem;">
+          Preview Proyek
+        </div>
+
+        <div class="preview-label">Klien</div>
+        <div class="preview-value" id="prev-client">—</div>
+
+        <hr class="preview-divider">
+
+        <div class="row">
+          <div class="col-6">
+            <div class="preview-label">Jenis Konten</div>
+            <div class="preview-value" id="prev-type" style="font-size:0.82rem;">—</div>
+          </div>
+          <div class="col-6">
+            <div class="preview-label">Status</div>
+            <div id="prev-status" style="margin-top:2px;">—</div>
+          </div>
+        </div>
+
+        <hr class="preview-divider">
+
+        <div class="preview-label">Tenggat Waktu</div>
+        <div class="preview-value" id="prev-deadline" style="font-size:1rem;">—</div>
+        <div id="prev-countdown" style="font-size:0.78rem; color:rgba(255,255,255,0.5); margin-top:3px;"></div>
+
+        <hr class="preview-divider">
+
+        <div class="preview-label">Harga Proyek</div>
+        <div class="preview-price" id="prev-price">—</div>
+
+        <hr class="preview-divider">
+
+        <div class="preview-label">Revisi · Pembayaran</div>
+        <div class="d-flex gap-2 mt-1" id="prev-badges">—</div>
+
+        <!-- Google Calendar Notice -->
+        <div id="gcal-preview-notice" class="gcal-notice mt-3">
+          <i class="bi bi-calendar-plus-fill" style="margin-top:2px;"></i>
+          <div>
+            <strong>Google Calendar</strong><br>
+            Tenggat waktu akan otomatis ditambahkan ke kalender Anda beserta notifikasi 3 hari & 1 hari sebelumnya.
+          </div>
+        </div>
+      </div>
+
+      <!-- Tips Card -->
+      <div class="pm-card mt-3">
+        <div class="pm-card-body">
+          <h6 style="font-family:Montserrat; font-weight:700; font-size:0.85rem; color:var(--navy); margin-bottom:0.75rem;">
+            <i class="bi bi-lightbulb text-warning me-2"></i>Tips
+          </h6>
+          <ul style="font-size:0.8rem; color:var(--text-muted); padding-left:1.2rem; line-height:1.9; margin:0;">
+            <li>Gunakan nama klien yang konsisten</li>
+            <li>Tenggat waktu = tanggal <strong>pengiriman final</strong></li>
+            <li>Set status "In Review" saat menunggu feedback</li>
+            <li>Update status bayar segera setelah dibayar</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Success Overlay ──────────────────────────────────────── -->
+<div class="success-overlay" id="success-overlay" style="display:flex; display:none;">
+  <div class="success-card">
+    <div class="success-icon">🎉</div>
+    <h4 style="font-family:Montserrat; font-weight:800; color:var(--navy); margin-bottom:0.5rem;">Proyek Disimpan!</h4>
+    <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:0.5rem;" id="success-msg">Proyek berhasil ditambahkan.</p>
+    <div id="gcal-success-msg" style="display:none;" class="gcal-notice" style="margin-bottom:1rem;">
+      <i class="bi bi-calendar-check-fill"></i>
+      <div>Event berhasil ditambahkan ke Google Calendar dengan notifikasi!</div>
+    </div>
+    <div class="d-flex gap-2 justify-content-center mt-3">
+      <a href="/projects" class="btn-pm-primary"><i class="bi bi-table"></i> Lihat Semua Proyek</a>
+      <button onclick="resetForm()" class="btn-pm-secondary"><i class="bi bi-plus"></i> Tambah Lagi</button>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
+<script src="js/app.js"></script>
+<script>
+$(document).ready(function() {
+  $('#navbar-root').html(renderNavbar('/form'));
+  checkAuthStatus().then(auth => {
+    if (!auth.authenticated) {
+      $('#gcal-preview-notice').removeClass().addClass('gcal-notice warning').html(`
+        <i class="bi bi-exclamation-triangle-fill" style="margin-top:2px;"></i>
+        <div>
+          <strong>Google Calendar belum terhubung</strong><br>
+          <a href="/auth/google" style="color:inherit; font-weight:700;">Hubungkan sekarang</a> agar tenggat otomatis masuk kalender.
+        </div>
+      `);
+    }
+  });
+
+  // ── jQuery UI Datepicker ────────────────────────────────
+  $('#deadline-display').datepicker({
+    dateFormat: 'DD, d MM yy',
+    minDate: 0,
+    altField: '#deadline',
+    altFormat: 'yy-mm-dd',
+    showAnim: 'fadeIn',
+    onSelect: function(dateText, inst) {
+      const altVal = $('#deadline').val();
+      updateDeadlineCountdown(altVal);
+      updatePreview();
+      clearError('deadline');
+      markStepDone(2);
+    }
+  });
+
+  // ── Live Preview ─────────────────────────────────────────
+  $('#clientName, #contentType, #price, #currency, #revisionStatus, #paymentStatus, #projectStatus').on('input change', function() {
+    updatePreview();
+    checkStepProgress();
+  });
+
+  // ── Form Steps Highlighting ──────────────────────────────
+  $('#clientName, #contentType').on('input change', function() {
+    if ($('#clientName').val() && $('#contentType').val()) markStepDone(1);
+  });
+  $('#price').on('input', function() {
+    if ($('#price').val()) markStepDone(3);
+  });
+
+  // ── jQuery Validate ──────────────────────────────────────
+  $('#project-form').validate({
+    rules: {
+      clientName: { required: true, minlength: 2 },
+      contentType: { required: true },
+      price: { required: true, number: true, min: 0 }
+    },
+    errorPlacement: function(error, element) {
+      $('#err-' + element.attr('id')).text(error.text());
+      element.addClass('error');
+    },
+    unhighlight: function(element) {
+      $(element).removeClass('error');
+      $('#err-' + $(element).attr('id')).text('');
+    },
+    submitHandler: function(form) {
+      // Custom validation for deadline and contentType
+      let valid = true;
+      if (!$('#deadline').val()) {
+        $('#err-deadline').text('Tenggat waktu wajib diisi');
+        $('#deadline-display').addClass('error');
+        valid = false;
+      }
+      if (!$('#contentType').val()) {
+        $('#err-contentType').text('Pilih jenis konten');
+        $('#contentType').addClass('error');
+        valid = false;
+      }
+      if (!valid) return;
+
+      submitProject();
+    }
+  });
+});
+
+function updatePreview() {
+  const client   = $('#clientName').val() || '—';
+  const type     = $('#contentType').val() || '—';
+  const price    = $('#price').val();
+  const currency = $('#currency').val() || 'USD';
+  const revision = $('#revisionStatus').val();
+  const payment  = $('#paymentStatus').val();
+  const status   = $('#projectStatus').val();
+
+  $('#prev-client').text(client);
+  $('#prev-type').text(type);
+  $('#prev-price').text(price ? formatPrice(parseFloat(price), currency) : '—');
+  $('#prev-status').html(statusBadge(status));
+  $('#prev-badges').html(revisionBadge(revision) + ' ' + paymentBadge(payment));
+}
+
+function updateDeadlineCountdown(dateStr) {
+  if (!dateStr) return;
+  const d = new Date(dateStr);
+  const now = new Date();
+  const diff = Math.ceil((d - now) / (1000*60*60*24));
+
+  let txt = '';
+  if (diff < 0)      txt = '⚠️ Tenggat sudah lewat!';
+  else if (diff === 0) txt = '🚨 Hari ini!';
+  else if (diff <= 7) txt = `🔔 ${diff} hari lagi — segera!`;
+  else if (diff <= 30) txt = `⏰ ${diff} hari lagi`;
+  else                 txt = `📅 ${diff} hari lagi`;
+
+  $('#deadline-countdown').text(txt);
+
+  // Update preview
+  const formatted = d.toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
+  $('#prev-deadline').text(formatted);
+  $('#prev-countdown').text(txt);
+}
+
+function clearError(field) {
+  $('#err-' + field).text('');
+  $('#' + field).removeClass('error');
+}
+
+function markStepDone(n) {
+  $('#step-' + n).removeClass('active').addClass('done');
+}
+
+function checkStepProgress() {
+  if ($('#clientName').val() && $('#contentType').val()) markStepDone(1);
+  if ($('#price').val()) markStepDone(3);
+}
+
+function submitProject() {
+  const $btn = $('#submit-btn');
+  $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span> Menyimpan...');
+
+  const payload = {
+    clientName:     $('#clientName').val().trim(),
+    contentType:    $('#contentType').val(),
+    deadline:       $('#deadline').val(),
+    price:          $('#price').val(),
+    currency:       $('#currency').val(),
+    revisionStatus: $('#revisionStatus').val(),
+    projectStatus:  $('#projectStatus').val(),
+    paymentStatus:  $('#paymentStatus').val(),
+    notes:          $('#notes').val().trim()
+  };
+
+  $.ajax({
+    url: '/api/projects',
+    method: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify(payload),
+    success: function(res) {
+      // Show success overlay
+      const gcalSynced = !!res.project.googleEventId;
+      if (gcalSynced) {
+        $('#gcal-success-msg').show();
+      }
+      $('#success-overlay').fadeIn(300);
+      $('#success-msg').text(`"${res.project.clientName}" berhasil ditambahkan.`);
+    },
+    error: function(xhr) {
+      const msg = xhr.responseJSON?.error || 'Terjadi kesalahan. Coba lagi.';
+      showToast(msg, 'error');
+    },
+    complete: function() {
+      $btn.prop('disabled', false).html('<i class="bi bi-cloud-upload"></i> Simpan Proyek');
+    }
+  });
+}
+
+function resetForm() {
+  $('#project-form')[0].reset();
+  $('#deadline').val('');
+  $('#deadline-display').val('');
+  $('#deadline-countdown').text('');
+  $('#success-overlay').fadeOut(200);
+  $('.step-num').parent().removeClass('done active');
+  $('#step-1').addClass('active');
+  updatePreview();
+  $('html, body').animate({ scrollTop: 0 }, 300);
+}
+</script>
+</body>
+</html>

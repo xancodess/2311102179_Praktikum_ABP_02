@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FreelancePM — Sistem Manajemen Proyek Video</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:   #13364F;
+      --purple: #845EA7;
+      --purple-light: #a07ec4;
+      --red:    #E63946;
+      --bg:     #F8F9FA;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--navy);
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Canvas BG ── */
+    #bg-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ── Noise overlay ── */
+    .noise {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: 0.4;
+    }
+
+    /* ── Main Content ── */
+    .opening-wrapper {
+      position: relative;
+      z-index: 10;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    /* ── Logo / Badge ── */
+    .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(132,94,167,0.2);
+      border: 1px solid rgba(132,94,167,0.4);
+      border-radius: 50px;
+      padding: 6px 18px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--purple-light);
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: slideDown 0.6s 0.3s ease forwards;
+    }
+
+    .logo-badge .dot {
+      width: 6px; height: 6px;
+      background: var(--purple-light);
+      border-radius: 50%;
+      animation: pulse-dot 2s infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%,100% { opacity:1; transform:scale(1); }
+      50%      { opacity:0.5; transform:scale(1.4); }
+    }
+
+    /* ── Headline ── */
+    .headline {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(2.4rem, 6vw, 5rem);
+      font-weight: 900;
+      line-height: 1.08;
+      letter-spacing: -2px;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: slideDown 0.7s 0.5s ease forwards;
+    }
+
+    .headline .highlight {
+      background: linear-gradient(135deg, var(--purple) 0%, #c084fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display: inline-block;
+    }
+
+    /* ── Subtext ── */
+    .subtext {
+      font-size: 1.05rem;
+      color: rgba(255,255,255,0.65);
+      max-width: 560px;
+      line-height: 1.7;
+      margin-bottom: 3rem;
+      opacity: 0;
+      animation: slideDown 0.7s 0.7s ease forwards;
+    }
+
+    /* ── Feature Pills ── */
+    .feature-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 3rem;
+      opacity: 0;
+      animation: slideDown 0.7s 0.9s ease forwards;
+    }
+
+    .pill {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 50px;
+      padding: 7px 16px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.8);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.25s ease;
+    }
+
+    .pill:hover {
+      background: rgba(132,94,167,0.25);
+      border-color: rgba(132,94,167,0.5);
+      color: #fff;
+      transform: translateY(-2px);
+    }
+
+    /* ── CTA Buttons ── */
+    .cta-group {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: slideDown 0.7s 1.1s ease forwards;
+    }
+
+    .btn-enter {
+      background: var(--purple);
+      color: #fff;
+      border: none;
+      padding: 14px 36px;
+      border-radius: 12px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-enter::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .btn-enter:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(132,94,167,0.45);
+      color: #fff;
+    }
+
+    .btn-enter:hover::before { opacity: 1; }
+
+    .btn-enter-outline {
+      background: transparent;
+      color: rgba(255,255,255,0.8);
+      border: 1.5px solid rgba(255,255,255,0.2);
+      padding: 14px 36px;
+      border-radius: 12px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .btn-enter-outline:hover {
+      border-color: rgba(255,255,255,0.5);
+      color: #fff;
+      background: rgba(255,255,255,0.06);
+      transform: translateY(-2px);
+    }
+
+    /* ── Stats Strip ── */
+    .stats-strip {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 10;
+      padding: 1.25rem 2rem;
+      background: rgba(19,54,79,0.6);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      opacity: 0;
+      animation: slideUp 0.6s 1.3s ease forwards;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-num {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--purple-light);
+      display: block;
+    }
+
+    .stat-label {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.45);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* ── Floating Cards ── */
+    .float-card {
+      position: fixed;
+      background: rgba(255,255,255,0.07);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px;
+      padding: 14px 18px;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.8);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .float-card-1 {
+      top: 18%;
+      left: 6%;
+      animation: float1 6s ease-in-out infinite;
+      opacity: 0;
+      animation-delay: 1.5s;
+      animation-fill-mode: forwards;
+    }
+
+    .float-card-2 {
+      top: 30%;
+      right: 6%;
+      animation: float2 7s ease-in-out infinite;
+      opacity: 0;
+      animation-delay: 1.8s;
+      animation-fill-mode: forwards;
+    }
+
+    .float-card-3 {
+      bottom: 22%;
+      left: 8%;
+      animation: float1 8s ease-in-out infinite;
+      opacity: 0;
+      animation-delay: 2.1s;
+      animation-fill-mode: forwards;
+    }
+
+    @keyframes float1 {
+      0%   { opacity:0.7; transform: translateY(0); }
+      50%  { opacity:0.9; transform: translateY(-12px); }
+      100% { opacity:0.7; transform: translateY(0); }
+    }
+
+    @keyframes float2 {
+      0%   { opacity:0.7; transform: translateY(0); }
+      50%  { opacity:0.9; transform: translateY(10px); }
+      100% { opacity:0.7; transform: translateY(0); }
+    }
+
+    .float-card .fc-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--purple-light);
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .float-card .fc-value {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    /* ── Animations ── */
+    @keyframes slideDown {
+      from { opacity:0; transform:translateY(-20px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    @keyframes slideUp {
+      from { opacity:0; transform:translateY(20px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 576px) {
+      .float-card { display: none; }
+      .stats-strip { gap: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Animated Background -->
+<canvas id="bg-canvas"></canvas>
+<div class="noise"></div>
+
+<!-- Floating Info Cards -->
+<div class="float-card float-card-1">
+  <div class="fc-label">📹 Proyek Aktif</div>
+  <div class="fc-value" id="fc-active">—</div>
+</div>
+
+<div class="float-card float-card-2">
+  <div class="fc-label">💰 Pendapatan</div>
+  <div class="fc-value" id="fc-revenue">—</div>
+</div>
+
+<div class="float-card float-card-3">
+  <div class="fc-label">✅ Selesai</div>
+  <div class="fc-value" id="fc-completed">—</div>
+</div>
+
+<!-- Main Content -->
+<div class="opening-wrapper">
+  <div class="logo-badge">
+    <div class="dot"></div>
+    Sistem Manajemen Proyek Video
+  </div>
+
+  <h1 class="headline">
+    Kelola Proyek<br>
+    <span class="highlight">Freelance Video</span><br>
+    Tanpa Batas
+  </h1>
+
+  <p class="subtext">
+    Lacak tenggat waktu, kelola revisi, dan pantau pembayaran klien luar negeri —
+    terintegrasi langsung dengan <strong>Google Calendar</strong> untuk notifikasi otomatis.
+  </p>
+
+  <div class="feature-pills">
+    <div class="pill"><i class="bi bi-calendar-check"></i> Google Calendar Sync</div>
+    <div class="pill"><i class="bi bi-table"></i> DataTable Real-time</div>
+    <div class="pill"><i class="bi bi-currency-dollar"></i> Multi-Currency</div>
+    <div class="pill"><i class="bi bi-bell"></i> Notifikasi Deadline</div>
+    <div class="pill"><i class="bi bi-graph-up"></i> Metrik Pendapatan</div>
+  </div>
+
+  <div class="cta-group">
+    <a href="/dashboard" class="btn-enter">
+      <i class="bi bi-play-fill"></i>
+      Mulai Sekarang
+      <i class="bi bi-arrow-right"></i>
+    </a>
+    <a href="/auth/google" class="btn-enter-outline">
+      <i class="bi bi-google"></i>
+      Hubungkan Google
+    </a>
+  </div>
+</div>
+
+<!-- Stats Strip -->
+<div class="stats-strip">
+  <div class="stat-item">
+    <span class="stat-num" id="stat-total">—</span>
+    <span class="stat-label">Total Proyek</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num" id="stat-active">—</span>
+    <span class="stat-label">Aktif</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num" id="stat-revenue">—</span>
+    <span class="stat-label">Total Pendapatan</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num" id="stat-clients">—</span>
+    <span class="stat-label">Klien Unik</span>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // ── Particle Canvas ────────────────────────────────────────
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+
+  let particles = [];
+  const PARTICLE_COUNT = 60;
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+
+  function createParticle() {
+    return {
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: (Math.random() - 0.5) * 0.4,
+      r: Math.random() * 2.5 + 0.5,
+      alpha: Math.random() * 0.4 + 0.1,
+      color: Math.random() > 0.5 ? '132,94,167' : '255,255,255'
+    };
+  }
+
+  function initParticles() {
+    particles = Array.from({ length: PARTICLE_COUNT }, createParticle);
+  }
+
+  function drawParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Gradient background
+    const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    grad.addColorStop(0,   '#0d2638');
+    grad.addColorStop(0.5, '#13364F');
+    grad.addColorStop(1,   '#1a1242');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Glow blobs
+    const blob1 = ctx.createRadialGradient(canvas.width*0.15, canvas.height*0.25, 0, canvas.width*0.15, canvas.height*0.25, 300);
+    blob1.addColorStop(0, 'rgba(132,94,167,0.12)');
+    blob1.addColorStop(1, 'transparent');
+    ctx.fillStyle = blob1;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const blob2 = ctx.createRadialGradient(canvas.width*0.85, canvas.height*0.6, 0, canvas.width*0.85, canvas.height*0.6, 250);
+    blob2.addColorStop(0, 'rgba(19,54,79,0.3)');
+    blob2.addColorStop(1, 'transparent');
+    ctx.fillStyle = blob2;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Particles
+    particles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+      if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${p.color},${p.alpha})`;
+      ctx.fill();
+    });
+
+    // Connections
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < 100) {
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(132,94,167,${0.06 * (1 - dist/100)})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+    }
+
+    requestAnimationFrame(drawParticles);
+  }
+
+  window.addEventListener('resize', () => { resize(); initParticles(); });
+  resize();
+  initParticles();
+  drawParticles();
+
+  // ── Load Stats ─────────────────────────────────────────────
+  $.getJSON('/api/projects', function(res) {
+    const projects = res.data || [];
+    const active = projects.filter(p => p.projectStatus === 'Active').length;
+    const completed = projects.filter(p => p.projectStatus === 'Completed').length;
+    const revenue = projects.filter(p => p.paymentStatus === 'Paid').reduce((s,p) => s + p.price, 0);
+    const clients = new Set(projects.map(p => p.clientName)).size;
+
+    $('#stat-total').text(projects.length);
+    $('#stat-active').text(active);
+    $('#stat-revenue').text('$' + revenue.toLocaleString());
+    $('#stat-clients').text(clients);
+
+    $('#fc-active').text(active + ' Proyek');
+    $('#fc-completed').text(completed + ' Proyek');
+    $('#fc-revenue').text('$' + revenue.toLocaleString());
+  });
+
+  // ── Animate number counter ─────────────────────────────────
+  function animateCount(el, target, prefix='', suffix='') {
+    let current = 0;
+    const increment = target / 40;
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= target) { current = target; clearInterval(timer); }
+      $(el).text(prefix + Math.floor(current).toLocaleString() + suffix);
+    }, 30);
+  }
+</script>
+</body>
+</html>
