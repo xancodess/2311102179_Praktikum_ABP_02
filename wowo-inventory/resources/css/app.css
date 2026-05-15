@@ -1,0 +1,147 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    html {
+        @apply antialiased scroll-smooth;
+    }
+
+    body {
+        @apply font-sans text-ink-700 bg-ink-50;
+    }
+
+    *:focus-visible {
+        @apply outline-none ring-2 ring-jade-500 ring-offset-2;
+    }
+}
+
+@layer components {
+    /* ── Sidebar ─────────────────────────────────── */
+    .sidebar-link {
+        @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
+               text-ink-400 hover:text-ink-800 hover:bg-white/70 transition-all duration-200;
+    }
+    .sidebar-link.active {
+        @apply text-jade-700 bg-jade-50 shadow-sm;
+    }
+    .sidebar-link .icon {
+        @apply w-5 h-5 shrink-0;
+    }
+
+    /* ── Buttons ─────────────────────────────────── */
+    .btn {
+        @apply inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl
+               transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+    }
+    .btn-primary {
+        @apply btn bg-ink-800 text-white hover:bg-ink-900 shadow-sm hover:shadow-md active:scale-[0.98];
+    }
+    .btn-jade {
+        @apply btn bg-jade-600 text-white hover:bg-jade-700 shadow-sm hover:shadow-md active:scale-[0.98];
+    }
+    .btn-ghost {
+        @apply btn text-ink-500 hover:text-ink-700 hover:bg-ink-100 active:scale-[0.98];
+    }
+    .btn-danger {
+        @apply btn bg-red-600 text-white hover:bg-red-700 shadow-sm active:scale-[0.98];
+    }
+    .btn-outline {
+        @apply btn border border-ink-200 text-ink-600 hover:bg-ink-100 hover:border-ink-300 active:scale-[0.98];
+    }
+    .btn-sm {
+        @apply px-3 py-1.5 text-xs;
+    }
+
+    /* ── Cards ───────────────────────────────────── */
+    .card {
+        @apply bg-white rounded-2xl shadow-card border border-ink-100/80;
+    }
+    .card-hover {
+        @apply card hover:shadow-card-hover transition-all duration-300;
+    }
+
+    /* ── Form ────────────────────────────────────── */
+    .form-label {
+        @apply block text-sm font-medium text-ink-600 mb-1.5;
+    }
+    .form-input {
+        @apply w-full rounded-xl border border-ink-200 px-3.5 py-2.5 text-sm text-ink-800
+               bg-white placeholder-ink-300 shadow-sm
+               focus:border-jade-500 focus:ring-2 focus:ring-jade-500/20 transition-all;
+    }
+    .form-select {
+        @apply form-input appearance-none;
+    }
+    .form-textarea {
+        @apply form-input resize-none;
+    }
+    .form-error {
+        @apply mt-1.5 text-xs text-red-600 flex items-center gap-1;
+    }
+    .form-hint {
+        @apply mt-1.5 text-xs text-ink-400;
+    }
+
+    /* ── Badges ──────────────────────────────────── */
+    .badge {
+        @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium;
+    }
+    .badge-green  { @apply badge bg-jade-50 text-jade-700; }
+    .badge-red    { @apply badge bg-red-50 text-red-700; }
+    .badge-yellow { @apply badge bg-amber-50 text-amber-700; }
+    .badge-gray   { @apply badge bg-ink-100 text-ink-500; }
+    .badge-blue   { @apply badge bg-blue-50 text-blue-700; }
+
+    /* ── Table ───────────────────────────────────── */
+    .table-wrapper {
+        @apply w-full overflow-x-auto;
+    }
+    .data-table {
+        @apply w-full text-sm;
+    }
+    .data-table thead th {
+        @apply px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider
+               text-ink-400 bg-ink-50/80 border-b border-ink-100;
+    }
+    .data-table tbody tr {
+        @apply border-b border-ink-50 hover:bg-jade-50/30 transition-colors duration-150;
+    }
+    .data-table tbody td {
+        @apply px-4 py-3.5 text-ink-700;
+    }
+
+    /* ── Stats Card ──────────────────────────────── */
+    .stat-card {
+        @apply card p-5 flex items-start gap-4;
+    }
+    .stat-icon {
+        @apply w-11 h-11 rounded-xl flex items-center justify-center shrink-0;
+    }
+
+    /* ── Modal ───────────────────────────────────── */
+    .modal-backdrop {
+        @apply fixed inset-0 bg-ink-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4;
+    }
+    .modal-box {
+        @apply bg-white rounded-2xl shadow-modal w-full max-w-md animate-slide-up;
+    }
+}
+
+@layer utilities {
+    .font-display { font-family: 'Syne', sans-serif; }
+    .font-mono    { font-family: 'JetBrains Mono', monospace; }
+
+    /* Scrollbar halus */
+    .scrollbar-thin {
+        scrollbar-width: thin;
+        scrollbar-color: theme('colors.ink.200') transparent;
+    }
+
+    /* Gradient teks */
+    .text-gradient {
+        @apply bg-gradient-to-r from-jade-600 to-jade-400 bg-clip-text text-transparent;
+    }
+}
