@@ -1,0 +1,18 @@
+- AppBar (Bilah Atas):
+Tampil di bagian paling atas layar dengan warna ungu muda, Menampilkan judul halaman "Kamera & Notifikasi" di posisi tengah.
+
+- Container Preview (Kotak Tengah):
+1. Kondisi Kosong: Menampilkan ikon kamera abu-abu di tengah, teks tebal "Belum ada foto dipilih", dan petunjuk teks kecil di bawahnya.
+2. Kondisi Berisi: Menampilkan foto yang berhasil diambil (seperti foto makanan dan foto layar laptop) dengan sudut yang melengkung rapi di dalam kotak.
+
+- ElevatedButton "Buka Kamera" (Tombol Kiri):
+Tombol berwarna ungu tua dengan ikon kamera dan teks "Buka Kamera", Berfungsi untuk mengaktifkan kamera HP dan mengambil gambar.
+
+- ElevatedButton "Pilih Galeri" (Tombol Kanan):
+Tombol berwarna abu-abu gelap dengan ikon galeri/foto dan teks "Pilih Galeri"Berfungsi untuk membuka galeri foto di perangkat.
+
+- Dialog Izin Akses / Permission Dialog :
+Kotak pop-up sistem di tengah layar bertuliskan "Izinkan pertemuan8_modul6_9 mengakses foto dan video di perangkat ini?" Berfungsi untuk meminta izin akses ke penyimpanan perangkat sebelum membuka galeri.
+
+- Banner Notifikasi / Local Notification:
+Muncul di bagian paling atas layar handphone dengan ikon Flutter. Bertuliskan "SIAP FOTO 📸 Foto berhasil diambil! Lihat hasilnya di aplikasi. ✅" yang muncul sesaat setelah foto berhasil diambil dari kamera.

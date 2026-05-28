@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- File paths configuration untuk FileProvider -->
+<!-- Digunakan oleh image_picker untuk berbagi file foto sementara -->
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Cache directory untuk foto sementara dari kamera -->
+    <cache-path name="flutter_image_picker_cache" path="image_picker" />
+    <!-- External files directory -->
+    <external-files-path name="flutter_image_picker_external" path="." />
+    <!-- External cache directory -->
+    <external-cache-path name="flutter_image_picker_external_cache" path="." />
+</paths>
