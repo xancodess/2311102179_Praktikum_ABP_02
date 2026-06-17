@@ -1,31 +1,40 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Profil AJAX</title>
 
-  <!-- Google Fonts -->
+  <!-- Google Fonts --> skdjalkd
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;800&family=DM+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
 
   <style>
     /* ─── Reset & Base ─── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     :root {
-      --bg:        #0c0f14;
-      --surface:   #131720;
-      --border:    #1e2535;
-      --accent:    #e8ff4a;
-      --accent2:   #4affda;
-      --text:      #e2e8f8;
-      --muted:     #5a6480;
+      --bg: #0c0f14;
+      --surface: #131720;
+      --border: #1e2535;
+      --accent: #e8ff4a;
+      --accent2: #4affda;
+      --text: #e2e8f8;
+      --muted: #5a6480;
       --card-glow: 0 0 40px rgba(232, 255, 74, 0.08);
     }
 
-    html, body {
+    html,
+    body {
       height: 100%;
       background: var(--bg);
       color: var(--text);
@@ -40,8 +49,8 @@
       padding: 2rem;
       /* Subtle grid noise */
       background-image:
-        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
       background-size: 48px 48px;
     }
 
@@ -53,7 +62,7 @@
       border: 1px solid var(--border);
       border-radius: 20px;
       padding: 2.5rem;
-      box-shadow: var(--card-glow), 0 24px 64px rgba(0,0,0,0.5);
+      box-shadow: var(--card-glow), 0 24px 64px rgba(0, 0, 0, 0.5);
       position: relative;
       overflow: hidden;
     }
@@ -62,10 +71,12 @@
     .card::before {
       content: '';
       position: absolute;
-      top: -80px; right: -80px;
-      width: 200px; height: 200px;
+      top: -80px;
+      right: -80px;
+      width: 200px;
+      height: 200px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(232,255,74,0.12) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(232, 255, 74, 0.12) 0%, transparent 70%);
       pointer-events: none;
     }
 
@@ -83,26 +94,35 @@
       font-weight: 600;
       letter-spacing: 0.15em;
       text-transform: uppercase;
-      background: rgba(232,255,74,0.12);
+      background: rgba(232, 255, 74, 0.12);
       color: var(--accent);
-      border: 1px solid rgba(232,255,74,0.25);
+      border: 1px solid rgba(232, 255, 74, 0.25);
       padding: 4px 10px;
       border-radius: 999px;
     }
 
     .pulse {
-      width: 8px; height: 8px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       background: var(--accent);
-      box-shadow: 0 0 0 0 rgba(232,255,74,0.6);
+      box-shadow: 0 0 0 0 rgba(232, 255, 74, 0.6);
       animation: pulse 2s infinite;
       flex-shrink: 0;
     }
 
     @keyframes pulse {
-      0%   { box-shadow: 0 0 0 0 rgba(232,255,74,0.6); }
-      70%  { box-shadow: 0 0 0 8px rgba(232,255,74,0); }
-      100% { box-shadow: 0 0 0 0 rgba(232,255,74,0); }
+      0% {
+        box-shadow: 0 0 0 0 rgba(232, 255, 74, 0.6);
+      }
+
+      70% {
+        box-shadow: 0 0 0 8px rgba(232, 255, 74, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(232, 255, 74, 0);
+      }
     }
 
     /* ─── Title ─── */
@@ -115,7 +135,9 @@
       margin-bottom: 0.4rem;
     }
 
-    h1 span { color: var(--accent); }
+    h1 span {
+      color: var(--accent);
+    }
 
     .subtitle {
       font-size: 0.78rem;
@@ -141,7 +163,7 @@
       background: var(--accent);
       color: #0c0f14;
       transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-      box-shadow: 0 4px 20px rgba(232,255,74,0.25);
+      box-shadow: 0 4px 20px rgba(232, 255, 74, 0.25);
       margin-bottom: 1.75rem;
       position: relative;
       overflow: hidden;
@@ -149,7 +171,7 @@
 
     #btn-fetch:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 28px rgba(232,255,74,0.4);
+      box-shadow: 0 8px 28px rgba(232, 255, 74, 0.4);
     }
 
     #btn-fetch:active {
@@ -165,17 +187,27 @@
     /* Loading spinner inside button */
     .spinner {
       display: none;
-      width: 14px; height: 14px;
-      border: 2px solid rgba(0,0,0,0.25);
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(0, 0, 0, 0.25);
       border-top-color: #0c0f14;
       border-radius: 50%;
       animation: spin 0.6s linear infinite;
     }
 
-    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
 
-    .icon-arrow { transition: transform 0.2s ease; }
-    #btn-fetch:hover .icon-arrow { transform: translateX(3px); }
+    .icon-arrow {
+      transition: transform 0.2s ease;
+    }
+
+    #btn-fetch:hover .icon-arrow {
+      transform: translateX(3px);
+    }
 
     /* ─── Divider ─── */
     .divider {
@@ -209,7 +241,7 @@
     /* Profile card */
     .profile-result {
       width: 100%;
-      background: rgba(255,255,255,0.03);
+      background: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--border);
       border-radius: 14px;
       padding: 1.25rem 1.5rem;
@@ -217,8 +249,15 @@
     }
 
     @keyframes slideUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to   { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .profile-row {
@@ -228,7 +267,7 @@
       padding: 0.55rem 0;
     }
 
-    .profile-row + .profile-row {
+    .profile-row+.profile-row {
       border-top: 1px solid var(--border);
     }
 
@@ -248,7 +287,8 @@
     }
 
     .dot {
-      width: 5px; height: 5px;
+      width: 5px;
+      height: 5px;
       border-radius: 50%;
       background: var(--accent2);
       flex-shrink: 0;
@@ -259,7 +299,7 @@
       margin-top: 1.25rem;
       font-size: 0.7rem;
       color: var(--muted);
-      background: rgba(0,0,0,0.3);
+      background: rgba(0, 0, 0, 0.3);
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 0.6rem 0.9rem;
@@ -297,9 +337,9 @@
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      background: rgba(74,255,218,0.07);
+      background: rgba(74, 255, 218, 0.07);
       color: var(--accent2);
-      border: 1px solid rgba(74,255,218,0.18);
+      border: 1px solid rgba(74, 255, 218, 0.18);
       padding: 3px 8px;
       border-radius: 6px;
       font-size: 0.65rem;
@@ -307,72 +347,73 @@
     }
   </style>
 </head>
+
 <body>
 
-<div class="card">
+  <div class="card">
 
-  <!-- Header badge -->
-  <div class="card-header">
-    <div class="pulse"></div>
-    <span class="badge">AJAX Demo</span>
-  </div>
-
-  <!-- Title -->
-  <h1>Ambil Data<br /><span>Tanpa Reload</span></h1>
-  <p class="subtitle">// Klik tombol untuk fetch data dari server &rarr; data.php</p>
-
-  <!-- Tombol -->
-  <button id="btn-fetch">
-    <span class="spinner" id="spinner"></span>
-    <span id="btn-text">Tampilkan Profil</span>
-    <svg class="icon-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-         stroke-linecap="round" stroke-linejoin="round">
-      <path d="M5 12h14M12 5l7 7-7 7"/>
-    </svg>
-  </button>
-
-  <div class="divider"></div>
-
-  <!-- Area hasil -->
-  <div id="hasil-profil">
-    <div class="placeholder">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="1.5" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-      </svg>
-      Data belum dimuat
+    <!-- Header badge -->
+    <div class="card-header">
+      <div class="pulse"></div>
+      <span class="badge">AJAX Demo</span>
     </div>
-  </div>
 
-</div><!-- /.card -->
+    <!-- Title -->
+    <h1>Ambil Data<br /><span>Tanpa Reload</span></h1>
+    <p class="subtitle">// Klik tombol untuk fetch data dari server &rarr; data.php</p>
 
-<script>
-  const btn        = document.getElementById('btn-fetch');
-  const hasil      = document.getElementById('hasil-profil');
-  const spinner    = document.getElementById('spinner');
-  const btnText    = document.getElementById('btn-text');
+    <!-- Tombol -->
+    <button id="btn-fetch">
+      <span class="spinner" id="spinner"></span>
+      <span id="btn-text">Tampilkan Profil</span>
+      <svg class="icon-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h14M12 5l7 7-7 7" />
+      </svg>
+    </button>
 
-  btn.addEventListener('click', async () => {
-    // -- UI: loading state --
-    btn.disabled      = true;
-    spinner.style.display = 'block';
-    btnText.textContent   = 'Mengambil...';
+    <div class="divider"></div>
 
-    try {
-      // ── AJAX dengan fetch() ──────────────────────────────────
-      const response = await fetch('data.php');
+    <!-- Area hasil -->
+    <div id="hasil-profil">
+      <div class="placeholder">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+          xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="8" r="4" />
+          <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+        </svg>
+        Data belum dimuat
+      </div>
+    </div>
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+  </div><!-- /.card -->
 
-      // Parse JSON dari server
-      const data = await response.json();
-      // ────────────────────────────────────────────────────────
+  <script>
+    const btn = document.getElementById('btn-fetch');
+    const hasil = document.getElementById('hasil-profil');
+    const spinner = document.getElementById('spinner');
+    const btnText = document.getElementById('btn-text');
 
-      // -- Tampilkan hasil ke #hasil-profil --
-      hasil.innerHTML = `
+    btn.addEventListener('click', async () => {
+      // -- UI: loading state --
+      btn.disabled = true;
+      spinner.style.display = 'block';
+      btnText.textContent = 'Mengambil...';
+
+      try {
+        // ── AJAX dengan fetch() ──────────────────────────────────
+        const response = await fetch('data.php');
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // Parse JSON dari server
+        const data = await response.json();
+        // ────────────────────────────────────────────────────────
+
+        // -- Tampilkan hasil ke #hasil-profil --
+        hasil.innerHTML = `
         <div style="width:100%">
           <div class="profile-result">
             <div class="profile-row">
@@ -400,19 +441,20 @@
         </div>
       `;
 
-      btnText.textContent = 'Muat Ulang';
+        btnText.textContent = 'Muat Ulang';
 
-    } catch (err) {
-      hasil.innerHTML = `<p class="error-msg">⚠ Gagal mengambil data.<br/>
+      } catch (err) {
+        hasil.innerHTML = `<p class="error-msg">⚠ Gagal mengambil data.<br/>
         Pastikan file ini dijalankan lewat server PHP.<br/>
         <small style="opacity:.6">${err.message}</small></p>`;
-      btnText.textContent = 'Coba Lagi';
-    } finally {
-      spinner.style.display = 'none';
-      btn.disabled = false;
-    }
-  });
-</script>
+        btnText.textContent = 'Coba Lagi';
+      } finally {
+        spinner.style.display = 'none';
+        btn.disabled = false;
+      }
+    });
+  </script>
 
 </body>
+
 </html>
