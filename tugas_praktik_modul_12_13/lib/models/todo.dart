@@ -1,0 +1,7 @@
+class Todo {
+  const Todo({required this.id, required this.title, required this.createdAt});
+
+  final String id;
+  final String title;
+  final DateTime createdAt;
+}
